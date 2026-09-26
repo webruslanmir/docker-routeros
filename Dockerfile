@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.20    
 
 # For access via VNC
 EXPOSE 5900
@@ -17,14 +17,17 @@ RUN set -xe \
     bridge-utils iptables jq bash python3
 
 # Environments which may be change
-ENV ROUTEROS_VERSON="7.1beta6"
+ENV ROUTEROS_VERSON="7.24.4"
 ENV ROUTEROS_IMAGE="chr-$ROUTEROS_VERSON.vdi"
-ENV ROUTEROS_PATH="https://download.mikrotik.com/routeros/$ROUTEROS_VERSON/$ROUTEROS_IMAGE"
+ENV ROUTEROS_PATH="https://download.mikrotik.com/routeros/${ROUTEROS_VERSON}/${ROUTEROS_IMAGE}.zip"
 
 # Download VDI image from remote site
-RUN wget "$ROUTEROS_PATH" -O "/routeros/$ROUTEROS_IMAGE"
+# RUN wget "$ROUTEROS_PATH" -O "/routeros/$ROUTEROS_IMAGE" && ls -la "/routeros/$ROUTEROS_IMAGE"
+RUN wget -q "$ROUTEROS_PATH" -O "/routeros/${ROUTEROS_IMAGE}.zip" \
+    && unzip "/routeros/${ROUTEROS_IMAGE}.zip" -d /routeros/ \
+    && rm "/routeros/${ROUTEROS_IMAGE}.zip"
 
 # Copy script to routeros folder
 ADD ["./scripts", "/routeros"]
 
-ENTRYPOINT ["/routeros/entrypoint.sh"]
+ENTRYPOINT ["/routeros/entrypoint-new.sh"]
